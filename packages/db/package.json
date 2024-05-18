@@ -1,0 +1,24 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "private": "true",
+  "description": "Package to query, retrieve and mutate data from database",
+  "scripts": {
+    "prisma:migrate": "npx prisma migrate dev",
+    "prisma:studio": "npx prisma studio",
+    "prisma:push": "npx prisma db push"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "@repo/types": "*",
+    "prisma": "^5.14.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.14.0"
+  },
+  "exports": {
+    ".": "./src/db.ts"
+  }
+}

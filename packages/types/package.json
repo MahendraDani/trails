@@ -1,0 +1,14 @@
+{
+  "name": "@repo/types",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Types, errors and zod schemas for trails",
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "^5.3.3"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

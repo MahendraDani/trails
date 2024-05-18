@@ -1,0 +1,26 @@
+{
+  "name": "turborepo-shadcn-ui",
+  "version": "1.1.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "ui:add": "npm run -w @repo/ui ui:add --",
+    "prisma:migrate": "npm run -w @repo/db prisma:migrate --",
+    "prisma:studio": "npm run -w @repo/db prisma:studio",
+    "prisma:push": "npm run -w @repo/db prisma:push"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "prettier": "^3.1.1",
+    "turbo": "latest"
+  },
+  "packageManager": "npm@10.2.3",
+  "workspaces": [
+    "./apps/*",
+    "./packages/*"
+  ]
+}

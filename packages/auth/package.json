@@ -1,0 +1,25 @@
+{
+  "name": "@repo/auth",
+  "version": "1.0.0",
+  "description": "Package for managing auth",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@repo/db": "*",
+    "@repo/eslint-config": "*",
+    "@repo/typescript-config": "*",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@next-auth/prisma-adapter": "^1.0.7",
+    "next-auth": "^4.24.7"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts",
+    "./middleware": "./src/middleware.ts",
+    "./jwt": "./src/token.ts"
+  }
+}

@@ -1,0 +1,148 @@
+// // This is your Prisma schema file,
+// // learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      =  env("DATABASE_URL")
+}
+
+
+ 
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  account      Account?
+  sessions      Session[]
+
+  githubId Int @unique
+  login String @unique 
+  avatarUrl String? @map("avatar_url")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  collections Collections[]
+  trails Trails[]
+  likes Likes[]
+
+}
+ 
+model Account {
+  id String @id @default(cuid())
+  userId            String @unique
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt  @map("updated_at")
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+}
+ 
+ model Collections {
+  id String @id @default(cuid())
+  name String @db.VarChar(255)
+  description String? @db.VarChar(255)
+  createdAt DateTime @map("created_at") @default(now())
+  updatedAt DateTime @map("updated_at") @updatedAt
+  trailCount Int @default(0) 
+  private Boolean @default(true)
+
+  userId String @map("user_id")
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  trails Trails[]
+}
+
+enum Languages {
+  c
+  cpp
+  java
+  python
+  go
+  rust
+  kotlin
+  dart
+  flutter
+  javascript
+  typescript
+  react
+  html
+  txt
+  md
+  yaml
+  json
+  toml
+}
+
+model Trails {
+  id String @id @default(cuid())
+  name String @db.VarChar(255)
+  description String? @db.VarChar(255)
+  content String @db.Text()
+  language Languages
+  private Boolean @default(true)
+  likeCount Int @default(0) @map("like_count")
+  commentCount Int @default(0) @map("comment_count")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  userId String @map("user_id")
+  user User @relation(fields: [userId],references: [id], onDelete: Cascade)
+
+  collectionId String @map("collection_id")
+  collection Collections @relation(fields: [collectionId],references: [id],onDelete: Cascade)
+
+  likes Likes[]
+
+}
+
+model Likes {
+  id String @id @default(cuid())
+  likedAt DateTime @default(now()) @map("liked_at")
+
+  userId String @map("user_id")
+  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  trailId String @map("trail_id")
+  trail Trails @relation(fields: [trailId],references: [id],onDelete: Cascade)
+
+}
