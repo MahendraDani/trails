@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@ui/components/ui/card";
 import { isValidUsername } from "../utils/valid-username";
+import { TUserDB } from "@repo/db/types";
 
 const ZOnboardFormSchema = z.object({
   username: z
@@ -40,7 +41,19 @@ const ZOnboardFormSchema = z.object({
     ),
 });
 
-export const OnboardForm = ({ id }: { id: string }) => {
+export const OnboardForm = ({
+  id,
+  addUsername,
+}: {
+  id: string;
+  addUsername: ({
+    id,
+    username,
+  }: {
+    id: string;
+    username: string;
+  }) => Promise<TUserDB>;
+}) => {
   const form = useForm<z.infer<typeof ZOnboardFormSchema>>({
     resolver: zodResolver(ZOnboardFormSchema),
     defaultValues: {
@@ -48,10 +61,10 @@ export const OnboardForm = ({ id }: { id: string }) => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof ZOnboardFormSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof ZOnboardFormSchema>) {
+    const updateUsername = await addUsername({ id, username: values.username });
+    // TODO : redirect to /proctected page and later to dashboard page
+    console.log(updateUsername);
   }
   return (
     <Card className="w-[23.5rem]">

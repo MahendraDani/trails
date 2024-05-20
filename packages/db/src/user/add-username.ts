@@ -1,8 +1,9 @@
+"use server";
 interface IAddUsernameType {
   id: string;
   username: string;
 }
-import { db } from "../index";
+import { db } from "../db";
 import { Prisma } from "@prisma/client";
 import { EDatabaseError } from "@repo/types";
 
