@@ -2,7 +2,7 @@ interface IAddUsernameType {
   id: string;
   username: string;
 }
-import { db } from "@db/db";
+import { db } from "../index";
 import { Prisma } from "@prisma/client";
 import { EDatabaseError } from "@repo/types";
 
