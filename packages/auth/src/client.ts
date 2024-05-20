@@ -1,3 +1,1 @@
-import { signIn, signOut, useSession } from "next-auth/react";
-
-export default { signIn, signOut, useSession };
+export { signIn, signOut, useSession, getSession } from "next-auth/react";

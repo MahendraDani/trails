@@ -1,6 +1,6 @@
 "use client";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import auth from "@repo/auth/client";
+import { signIn } from "@repo/auth/client";
 
 import { Button } from "@ui/components/ui/button";
 import {
@@ -20,7 +20,7 @@ export function LoginForm() {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await auth.signIn("github");
+    await signIn("github");
   };
 
   return (

@@ -1,6 +1,6 @@
 // TODO : Make this as a client component, so that nav background can be changed on scroll
 import { LoginForm } from "../forms/login.form";
-import getServerSession from "@repo/auth/server";
+import { getServerSession } from "@repo/auth/server";
 import { authOptions } from "@repo/auth";
 import { Logout } from "../forms/logout.form";
 

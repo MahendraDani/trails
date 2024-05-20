@@ -20,6 +20,7 @@
     "./server": "./src/server.ts",
     "./client": "./src/client.ts",
     "./middleware": "./src/middleware.ts",
-    "./jwt": "./src/token.ts"
+    "./jwt": "./src/token.ts",
+    "./provider": "./src/provider.ts"
   }
 }

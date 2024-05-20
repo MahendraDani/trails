@@ -1,5 +1,5 @@
 import { authOptions } from "@repo/auth";
-import getServerSession from "@repo/auth/server";
+import { getServerSession } from "@repo/auth/server";
 
 export default async function Page() {
   const session = await getServerSession(authOptions);

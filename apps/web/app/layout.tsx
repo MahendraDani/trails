@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   description: "A dev tool to share your code easily!",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}): JSX.Element {
+}) {
   return (
     <html lang="en">
       <body className={cn(inter.className)}>
