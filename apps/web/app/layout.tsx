@@ -1,5 +1,6 @@
 import { Navbar } from "@repo/ui/components/containers/navbar";
 import "@repo/ui/globals.css";
+import { cn } from "@repo/ui/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
@@ -17,7 +18,7 @@ export default function RootLayout({
 }): JSX.Element {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={cn(inter.className)}>
         <Navbar />
         {children}
       </body>
