@@ -22,7 +22,7 @@ export default async function RootLayout({
       <body className={cn(inter.className)}>
         <Navbar />
         {children}
-        <Toaster position="bottom-right" richColors />
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );
