@@ -18,63 +18,83 @@ import {
   CardHeader,
   CardTitle,
 } from "@ui/components/ui/card";
-import { TUserDB } from "@repo/db/types";
 import { useRouter } from "next/navigation";
 import { SpinnerOutline } from "@repo/ui/components/utils/spinner";
-import { FormEvent, useState } from "react";
-import { addUsername } from "@repo/db";
+import { addUsername, usernameExists } from "@repo/db";
 import { ZOnboardFormSchema } from "@repo/types";
+import { z, zodResolver, useForm } from "@repo/ui/lib/react-hook-forms";
+import { toast } from "sonner";
 
-export const OnboardFormNext = ({ id }: { id: string }) => {
-  const [saving, setSaving] = useState(false);
+export const OnboardForm = ({ id }: { id: string }) => {
   const router = useRouter();
-  async function handleLoginForm(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const form = useForm<z.infer<typeof ZOnboardFormSchema>>({
+    resolver: zodResolver(ZOnboardFormSchema),
+    defaultValues: {
+      username: "",
+    },
+  });
 
-    setSaving(true);
+  const onSubmit = async (values: z.infer<typeof ZOnboardFormSchema>) => {
+    // Shows loading state for better UX
+    await new Promise((resolve) => {
+      setTimeout(resolve, 1.5 * 1000);
+    });
 
-    let formData = new FormData(e.currentTarget);
-    const username = formData.get("username") as string;
-
-    const parsedUsername = ZOnboardFormSchema.safeParse({ username });
-    if (!parsedUsername.success) {
-      alert("validation error");
-      setSaving(false);
-      return;
+    const USERNAME_EXISTS = await usernameExists({ username: values.username });
+    if (USERNAME_EXISTS) {
+      form.reset();
+      return toast.error("username already exists. Please try again!");
     }
-
-    const updatedUser = await addUsername({ id, username });
+    await addUsername({
+      id,
+      username: values.username,
+    });
     router.push("/proctected");
-  }
-
+  };
   return (
     <Card className="w-[23.5rem]">
       <CardHeader className="p-4 text-center">
-        <CardTitle className="text-xl">Create Username</CardTitle>
+        <CardTitle className="text-xl">Username</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleLoginForm}>
-          <fieldset
-            disabled={saving}
-            className="group flex flex-col items-start gap-1 text-black/70"
-          >
-            <div className="text-sm text-slate-500 mb-1">
-              This is your public display name.
-            </div>
-            <div className="w-full group-disabled:opacity-50">
-              <Input className="w-full" placeholder="jhondoe" name="username" />
-            </div>
-            <div className="mt-[25px] flex w-full justify-center items-center">
-              <Button type="submit">
-                <span className="group-disabled:hidden">Submit</span>
-                <div className="flex justify-center items-center gap-2 group-enabled:hidden">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="username"
+              disabled={form.formState.isSubmitting}
+              render={({ field }) => (
+                <FormItem className="-mb-2">
+                  <FormDescription className="pb-3">
+                    Create a unique username, 5-20 characters, using letters,
+                    numbers, or underscores.
+                  </FormDescription>
+                  <FormControl>
+                    <Input placeholder="JhonDoe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.formState.isSubmitting ? (
+              <div className="flex justify-center items-center">
+                <Button
+                  disabled={form.formState.isSubmitting}
+                  className="w-full flex justify-center items-center gap-1 px-8"
+                >
                   <SpinnerOutline />
-                  <span>Loading...</span>
-                </div>
-              </Button>
-            </div>
-          </fieldset>
-        </form>
+                  <span>Submitting...</span>
+                </Button>
+              </div>
+            ) : (
+              <div className="flex justify-center items-center">
+                <Button type="submit" className="w-full">
+                  Submit
+                </Button>
+              </div>
+            )}
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );

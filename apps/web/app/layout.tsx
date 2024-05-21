@@ -3,6 +3,7 @@ import "@repo/ui/globals.css";
 import { cn } from "@repo/ui/lib/utils";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Toaster } from "@repo/ui/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default async function RootLayout({
       <body className={cn(inter.className)}>
         <Navbar />
         {children}
+        <Toaster position="bottom-right" richColors />
       </body>
     </html>
   );

@@ -4,8 +4,11 @@ import { isValidUsername } from "@repo/ui/lib/valid-username";
 export const ZOnboardFormSchema = z.object({
   username: z
     .string()
-    .min(6, {
+    .min(5, {
       message: "Username must be at least 6 characters.",
+    })
+    .max(20, {
+      message: "username should be at most 20 characters",
     })
     .refine(
       (username) => {
