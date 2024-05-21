@@ -1,7 +1,7 @@
 "use client";
 import { FormEvent } from "react";
 import { Button } from "../ui/button";
-import auth from "@repo/auth/client";
+import { signOut } from "@repo/auth/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +17,7 @@ import {
 export const Logout = () => {
   const handleSignout = async (e: FormEvent) => {
     e.preventDefault();
-    await auth.signOut();
+    await signOut();
   };
   return (
     <AlertDialog>

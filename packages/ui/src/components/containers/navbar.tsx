@@ -1,8 +1,8 @@
 // TODO : Make this as a client component, so that nav background can be changed on scroll
-import { LoginForm } from "../forms/login.form";
-import getServerSession from "@repo/auth/server";
+import { LoginForm } from "../forms/login-form";
+import { getServerSession } from "@repo/auth/server";
 import { authOptions } from "@repo/auth";
-import { Logout } from "../forms/logout.form";
+import { Logout } from "../forms/logout-form";
 
 export const Navbar = async () => {
   const session = await getServerSession(authOptions);

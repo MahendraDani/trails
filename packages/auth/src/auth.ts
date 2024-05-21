@@ -2,7 +2,6 @@ import { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "@repo/db";
-import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
@@ -14,8 +13,8 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/",
     signOut: "/",
+    newUser: "/onboard",
   },
 
   callbacks: {
@@ -49,7 +48,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           // update details if user changed their provier details
-          await db.user.update({
+          const updatedUser = await db.user.update({
             where: {
               id: existingUserWithAccount.id,
             },
@@ -112,7 +111,7 @@ export const authOptions: NextAuthOptions = {
         login: dbUser.login,
       };
     },
-    async session({ token, session }) {
+    async session({ token, session, user }) {
       if (token) {
         if (token.name && session.user) {
           session.user.name = token.name;
