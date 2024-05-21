@@ -22,26 +22,8 @@ import { TUserDB } from "@repo/db/types";
 import { useRouter } from "next/navigation";
 import { SpinnerOutline } from "@repo/ui/components/utils/spinner";
 import { FormEvent, useState } from "react";
-import { z } from "zod";
-import { isValidUsername } from "@repo/ui/lib/valid-username";
 import { addUsername } from "@repo/db";
-
-const ZOnboardFormSchema = z.object({
-  username: z
-    .string()
-    .min(6, {
-      message: "Username must be at least 6 characters.",
-    })
-    .refine(
-      (username) => {
-        return isValidUsername(username);
-      },
-      {
-        message:
-          "Username should not contain any special charactes expect underscore",
-      },
-    ),
-});
+import { ZOnboardFormSchema } from "@repo/types";
 
 export const OnboardFormNext = ({ id }: { id: string }) => {
   const [saving, setSaving] = useState(false);
