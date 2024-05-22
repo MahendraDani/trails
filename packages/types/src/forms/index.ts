@@ -19,4 +19,5 @@ export const ZOnboardFormSchema = z.object({
           "Username should not contain any special characters expect underscore",
       },
     ),
+  id: z.string().min(0, { message: "User id is required" }),
 });
