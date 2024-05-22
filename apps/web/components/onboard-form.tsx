@@ -14,7 +14,7 @@ import { SpinnerOutline } from "@repo/ui/components/utils/spinner";
 import { useFormState, useFormStatus } from "react-dom";
 import { IOnboardFormPrevState, OnboardUserAction } from "../actions/onboard";
 
-export const OnboardForm = ({ id }: { id: string }) => {
+export const OnboardForm = () => {
   const initState = {
     message: "",
     error: null,
@@ -27,20 +27,14 @@ export const OnboardForm = ({ id }: { id: string }) => {
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-8">
-          <OnboardFormFields id={id} state={state} />
+          <OnboardFormFields state={state} />
         </form>
       </CardContent>
     </Card>
   );
 };
 
-function OnboardFormFields({
-  id,
-  state,
-}: {
-  id: string;
-  state: IOnboardFormPrevState;
-}) {
+function OnboardFormFields({ state }: { state: IOnboardFormPrevState }) {
   const { pending } = useFormStatus();
   return (
     <>
@@ -51,7 +45,6 @@ function OnboardFormFields({
         </div>
         <fieldset disabled={pending}>
           <Input placeholder="JhonDoe" name="username" />
-          <Input defaultValue={id} name="id" className="hidden" />
           {state.errorType && state.errorType === "EValidationError" && (
             <div className="text-sm text-red-400 pt-2 px-1 -pb-2">
               <span>{state.error as string}</span>
