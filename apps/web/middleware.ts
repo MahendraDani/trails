@@ -17,5 +17,5 @@ export async function middleware(req: NextRequest) {
 
 // Add all proctected routes below
 export const config = {
-  matcher: ["/proctected", "/logout"],
+  matcher: ["/onboard"],
 };

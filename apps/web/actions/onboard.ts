@@ -43,12 +43,12 @@ export async function OnboardUserAction(
     };
   }
 
-  await addUsername({
+  const updateduser = await addUsername({
     id: parsedInput.data.id,
     username: parsedInput.data.username,
   });
 
-  redirect("/proctected");
+  redirect(`/${updateduser.username}`);
   return {
     message: "Successfully created username",
     error: null,

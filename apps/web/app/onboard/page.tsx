@@ -20,8 +20,7 @@ export default async function Onboarduser() {
   const existingUsername = user?.username;
 
   if (existingUsername) {
-    // TODO : change this to dashboard part later
-    redirect("/proctected");
+    redirect(`/${existingUsername}`);
   }
 
   // /onboard page will be rendered only if the user is a new user and doesn't have a username
