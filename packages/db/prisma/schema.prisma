@@ -10,37 +10,34 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      =  env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
-
- 
 model User {
-  id            String          @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String?
-  email         String          @unique
-  username      String?  @unique 
+  email         String    @unique
+  username      String?   @unique
   emailVerified DateTime?
   image         String?
-  account      Account?
+  account       Account?
   sessions      Session[]
 
-  githubId Int @unique
-  login String @unique 
+  githubId  Int     @unique
+  login     String  @unique
   avatarUrl String? @map("avatar_url")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   collections Collections[]
-  trails Trails[]
-  likes Likes[]
-
+  trails      Trails[]
+  likes       Likes[]
 }
- 
+
 model Account {
-  id String @id @default(cuid())
-  userId            String @unique
+  id                String  @id @default(cuid())
+  userId            String  @unique
   type              String
   provider          String
   providerAccountId String
@@ -51,46 +48,50 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
- 
+
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt  @map("updated_at")
- 
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   @@unique([provider, providerAccountId])
 }
- 
+
 model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
- 
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt
 }
- 
+
 model VerificationToken {
   identifier String
   token      String
   expires    DateTime
- 
+
   @@id([identifier, token])
 }
- 
- model Collections {
-  id String @id @default(cuid())
-  name String @db.VarChar(255)
+
+model Collections {
+  id          String  @id @default(cuid())
+  name        String  @db.VarChar(255)
   description String? @db.VarChar(255)
-  createdAt DateTime @map("created_at") @default(now())
-  updatedAt DateTime @map("updated_at") @updatedAt
-  trailCount Int @default(0) 
-  private Boolean @default(true)
+  slug        String  @unique @db.VarChar(255)
+
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  trailCount Int      @default(0)
+  private    Boolean  @default(true)
 
   userId String @map("user_id")
-  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   trails Trails[]
+
+  @@index([id], map: "c_index")
 }
 
 enum Languages {
@@ -115,35 +116,36 @@ enum Languages {
 }
 
 model Trails {
-  id String @id @default(cuid())
-  name String @db.VarChar(255)
-  description String? @db.VarChar(255)
-  content String @db.Text()
-  language Languages
-  private Boolean @default(true)
-  likeCount Int @default(0) @map("like_count")
-  commentCount Int @default(0) @map("comment_count")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id           String    @id @default(cuid())
+  name         String    @db.VarChar(255)
+  description  String?   @db.VarChar(255)
+  content      String    @db.Text()
+  language     Languages
+  private      Boolean   @default(true)
+  likeCount    Int       @default(0) @map("like_count")
+  commentCount Int       @default(0) @map("comment_count")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
 
   userId String @map("user_id")
-  user User @relation(fields: [userId],references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  collectionId String @map("collection_id")
-  collection Collections @relation(fields: [collectionId],references: [id],onDelete: Cascade)
+  collectionId String      @map("collection_id")
+  collection   Collections @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 
   likes Likes[]
-
 }
 
 model Likes {
-  id String @id @default(cuid())
   likedAt DateTime @default(now()) @map("liked_at")
 
   userId String @map("user_id")
-  user User @relation(fields: [userId],references: [id],onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   trailId String @map("trail_id")
-  trail Trails @relation(fields: [trailId],references: [id],onDelete: Cascade)
+  trail   Trails @relation(fields: [trailId], references: [id], onDelete: Cascade)
 
+  @@unique(name: "likeId", [userId, trailId], map: "like_id")
+  @@index([userId])
+  @@index([trailId])
 }
