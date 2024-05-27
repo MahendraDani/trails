@@ -25,11 +25,29 @@ export const createCollection = async ({
         error: parsedInput.error,
       };
     }
+
+    const exists = await db.collections.findFirst({
+      where: {
+        slug,
+      },
+    });
+
+    if (exists) {
+      return {
+        success: false,
+        data: exists,
+        error: "Collection with given name already exists",
+        code: 403,
+        status: "forbidden",
+      };
+    }
     const collection = await db.collections.create({
       data: {
         ...parsedInput.data,
       },
     });
+
+    console.log(collection);
 
     return {
       success: true,
@@ -39,6 +57,7 @@ export const createCollection = async ({
       status: "resource_created",
     };
   } catch (error) {
+    console.log("I am here");
     return {
       success: false,
       data: null,

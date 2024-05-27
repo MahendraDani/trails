@@ -8,7 +8,7 @@ const ZIsExistingCollectionByNameSchema = z.object({
     .min(1, { message: "Name is required" })
     .describe("The name of collection"),
 });
-export const isExistingCollectionByName = async ({
+export const getCollectionByName = async ({
   name,
 }: Pick<TCollectionsDB, "name">) => {
   const parsedInput = ZIsExistingCollectionByNameSchema.safeParse({ name });
@@ -29,22 +29,39 @@ export const isExistingCollectionByName = async ({
       },
     });
 
-    if (!collection) {
-      return {
-        success: true,
-        data: null,
-        code: 200,
-        status: "ok",
-        error: null,
-      };
-    }
-
     return {
-      success: false,
+      success: collection ? true : false,
       data: collection,
-      code: 409,
-      status: "conflict",
-      error: "collection with given name already exists",
+      code: !collection ? 200 : 409,
+      status: !collection ? "ok" : "conflict",
+      error: !collection ? null : "collection with given name already exists",
+    };
+  } catch (error) {
+    return {
+      data: null,
+      error,
+      status: "internal_server_error",
+      code: 400,
+      success: false,
+    };
+  }
+};
+
+export const getCollectionById = async ({ id }: { id: string }) => {
+  try {
+    const collection = await db.collections.findUnique({
+      where: { id },
+      include: {
+        owner: true,
+        trails: true,
+      },
+    });
+    return {
+      success: !collection ? false : true,
+      data: collection,
+      code: !collection ? 404 : 200,
+      status: !collection ? "not_found " : "ok",
+      error: !collection ? "Collection not found" : null,
     };
   } catch (error) {
     return {
