@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   createCollection,
-  getUserByUsername,
-  getCollectionOwnerById,
   deleteCollection,
   getCollectionById,
-  getCollectionByName,
+  getCollectionOwnerById,
+  getUserByUsername,
 } from "@repo/db";
-import slugify from "@sindresorhus/slugify";
 import { createSlug } from "../../../lib/slug";
 
+// #create a new collection
 export const POST = async (req: NextRequest) => {
   try {
     const { username, name, description } = await req.json();
@@ -48,9 +47,23 @@ export const POST = async (req: NextRequest) => {
   }
 };
 
+// #delete collection by its id
 export const DELETE = async (req: NextRequest) => {
   try {
-    const { id, username } = await req.json();
+    const id = req.nextUrl.searchParams.get("id");
+    const username = req.nextUrl.searchParams.get("username");
+
+    if (!id || !username) {
+      return NextResponse.json(
+        {
+          error: "Invalid credentials. Id or username missing in search params",
+        },
+        {
+          status: 400,
+          statusText: "bas_request",
+        },
+      );
+    }
 
     //  check if collection exists first
     const exists = await getCollectionById({ id });

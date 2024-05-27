@@ -47,8 +47,6 @@ export const createCollection = async ({
       },
     });
 
-    console.log(collection);
-
     return {
       success: true,
       data: collection,
