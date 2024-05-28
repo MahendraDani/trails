@@ -5,7 +5,7 @@ import { db } from "@repo/db";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET,
   providers: [
     GithubProvider({
       clientId: process.env.AUTH_GITHUB_ID!,
@@ -16,7 +16,9 @@ export const authOptions: NextAuthOptions = {
     signOut: "/",
     newUser: "/onboard",
   },
-
+  session: {
+    strategy: "database",
+  },
   callbacks: {
     async signIn({ user, account, profile }: any) {
       if (account?.type !== "oauth") {
