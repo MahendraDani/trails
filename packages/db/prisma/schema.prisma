@@ -22,8 +22,7 @@ model User {
   account       Account?
   sessions      Session[]
 
-  githubId  Int?     @unique
-  login     String?  @unique
+  profileId  String     @unique
   avatarUrl String? @map("avatar_url")
 
   createdAt DateTime @default(now()) @map("created_at")
