@@ -18,10 +18,12 @@ export async function OnboardUserAction(
   const session = await getServerSession(authOptions);
   const user = await getUserByEmail({ email: session?.user?.email! });
   const username = formData.get("username");
+  const name = formData.get("name");
 
   const parsedInput = ZOnboardFormSchema.safeParse({
     username,
     id: user?.id,
+    name,
   });
 
   if (!parsedInput.success) {
@@ -46,6 +48,7 @@ export async function OnboardUserAction(
   const updateduser = await addUsername({
     id: parsedInput.data.id,
     username: parsedInput.data.username,
+    name: parsedInput.data.name,
   });
 
   redirect(`/${updateduser.username}`);

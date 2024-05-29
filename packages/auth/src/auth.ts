@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "@repo/db";
+import EmailProvider from "next-auth/providers/email";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
@@ -11,73 +12,107 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.AUTH_GITHUB_ID!,
       clientSecret: process.env.AUTH_GITHUB_SECRET!,
     }),
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_SERVER_HOST,
+        port: parseInt(process.env.EMAIL_SERVER_PORT!),
+        auth: {
+          user: process.env.EMAIL_SERVER_USER,
+          pass: process.env.EMAIL_SERVER_PASSWORD,
+        },
+      },
+      async sendVerificationRequest({ identifier, url }) {
+        // console.log(identifier);
+        // console.log(url);
+
+        try {
+          console.log(`Login Link: ${url}`);
+        } catch (error) {
+          throw new Error("Error sending error");
+        }
+      },
+      from: process.env.EMAIL_FROM,
+    }),
   ],
   pages: {
-    signOut: "/",
     newUser: "/onboard",
+    error: "/auth/error",
+    signIn: "/",
+    verifyRequest: "/auth/verify",
   },
   session: {
     strategy: "database",
   },
   callbacks: {
-    async signIn({ user, account, profile }: any) {
-      if (account?.type !== "oauth") {
+    async signIn({ account, user, profile }: any) {
+      console.log(account);
+      console.log(user);
+      console.log(profile);
+
+      if (!user.email) {
         return false;
       }
 
-      // NOTE : use these logs while debbuging
-      // console.log(user);
-      // console.log(account);
-      // console.log(profile);
-
-      if (account.provider) {
-        const existingUserWithAccount = await db.user.findFirst({
+      if (!account?.provider) {
+        return false;
+      }
+      // for those who login with email
+      if (account?.provider === "email") {
+        // for existing user
+        const exisitngUser = await db.user.findUnique({
+          where: {
+            email: user.email,
+          },
           include: {
             account: true,
           },
-          where: {
-            githubId: profile.id,
-          },
         });
 
-        if (existingUserWithAccount) {
-          if (
-            existingUserWithAccount.email === user.email &&
-            existingUserWithAccount.name === user.name &&
-            existingUserWithAccount.avatarUrl === user.avatar_url
-          ) {
-            return true;
-          }
-
-          // update details if user changed their provier details
-          const updatedUser = await db.user.update({
+        // for github user
+        if (exisitngUser?.account?.provider === "github") {
+          await db.user.update({
             where: {
-              id: existingUserWithAccount.id,
+              email: user.email,
             },
             data: {
-              name: profile.name,
-              githubId: profile.id,
-              email: profile.email,
-              login: profile.login,
-              avatarUrl: profile.avatar_url,
+              avatarUrl: profile?.image,
+              profileId: profile?.id.toString(),
+              name: profile?.name,
             },
           });
+        }
 
+        if (exisitngUser) {
+          if (exisitngUser.email === user.email) {
+            return true;
+          }
+          // update details
+
+          const updatedUser = await db.user.update({
+            where: {
+              id: exisitngUser.id,
+            },
+            data: {
+              email: user.email!,
+              name: user?.name,
+              avatarUrl: user?.image,
+              profileId: account.providerAccountId,
+            },
+          });
           return true;
         }
 
-        // add new user to db
+        // for new user
         const newUser = await db.user.create({
           data: {
-            name: profile.name,
-            githubId: profile.id,
-            email: profile.email,
-            login: profile.login,
-            avatarUrl: profile.avatar_url,
+            name: user?.name,
+            email: user.email!,
+            profileId: account.providerAccountId,
+            avatarUrl: user?.image,
           },
         });
 
-        // create account for new user
+        // add user in accounts table
         await db.account.create({
           data: {
             ...account,
@@ -86,43 +121,64 @@ export const authOptions: NextAuthOptions = {
         });
         return true;
       }
+
+      // For those who login with github
+      if (account?.provider === "github") {
+        // check if user already exists
+        const existingUserByEmail = await db.user.findUnique({
+          where: {
+            email: user.email,
+          },
+          include: {
+            account: true,
+          },
+        });
+
+        // add new user
+        if (!existingUserByEmail) {
+          const newUser = await db.user.create({
+            data: {
+              email: profile?.email!,
+              name: profile?.name,
+              avatarUrl: profile?.image,
+              profileId: profile?.id.toString(),
+            },
+          });
+
+          //create account for new user
+          await db.account.create({
+            data: {
+              ...account,
+              userId: newUser.id,
+            },
+          });
+        }
+
+        // check whether account.provder=== "email" || "github" => update details
+        if (existingUserByEmail?.account?.provider === "email") {
+          if (existingUserByEmail.email === user.email) {
+            return true;
+          }
+        }
+
+        if (existingUserByEmail?.account?.provider === "github") {
+          if (existingUserByEmail.email === user.email) {
+            await db.user.update({
+              where: {
+                id: existingUserByEmail.id,
+              },
+              data: {
+                name: profile?.name,
+                avatarUrl: profile?.image,
+                profileId: profile?.id.toString(),
+              },
+            });
+
+            return true;
+          }
+        }
+      }
       return false;
-    },
-    async jwt({ token, user }) {
-      if (!token.sub) {
-        return token;
-      }
-      const dbUser = await db.user.findFirst({
-        where: {
-          githubId: parseInt(token.sub),
-        },
-      });
-
-      if (!dbUser) {
-        if (user) {
-          token.id = user?.id;
-        }
-        return token;
-      }
-
-      return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        avatarUrl: dbUser.avatarUrl,
-        login: dbUser.login,
-      };
-    },
-    async session({ token, session, user }) {
-      if (token) {
-        if (token.name && session.user) {
-          session.user.name = token.name;
-        }
-        if (token.email && session.user) {
-          session.user.email = token.email;
-        }
-      }
-      return session;
     },
   },
 };

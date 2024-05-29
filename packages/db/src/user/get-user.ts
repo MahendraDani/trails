@@ -16,7 +16,10 @@ export const getUserById = async ({ id }: { id: string }) => {
 
 export const getUserByEmail = async ({ email }: { email: string }) => {
   try {
-    const user = await db.user.findUnique({ where: { email } });
+    const user = await db.user.findUnique({
+      where: { email },
+      include: { account: true },
+    });
     return user;
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

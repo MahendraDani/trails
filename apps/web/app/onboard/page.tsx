@@ -26,7 +26,9 @@ export default async function Onboarduser() {
   // /onboard page will be rendered only if the user is a new user and doesn't have a username
   return (
     <div className="w-full h-[49.5rem] bg-gradient-to-br from-blue-100 via-yellow-50 to-green-100 flex justify-center items-center">
-      <OnboardForm />
+      <OnboardForm
+        isLoggedInWithEmail={user?.account?.provider === "email" ? true : false}
+      />
     </div>
   );
 }
