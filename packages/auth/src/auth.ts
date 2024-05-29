@@ -1,8 +1,9 @@
-import { NextAuthOptions } from "next-auth";
+import { Awaitable, NextAuthOptions, Session } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "@repo/db";
 import EmailProvider from "next-auth/providers/email";
+import { TUserDB, TSessionDB, TAccountDB } from "@repo/db/types";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
@@ -180,5 +181,13 @@ export const authOptions: NextAuthOptions = {
       }
       return false;
     },
+    async session({ session, user, token }) {
+      // NOTE : This is just a workaround to store userId directly in session, but to avoid TYPE errors, we are storing the userId in image field of session.user object
+      if (session.user) {
+        session.user.image = user.id;
+      }
+      return session;
+    },
   },
 };
+
