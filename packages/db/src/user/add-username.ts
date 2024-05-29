@@ -2,16 +2,18 @@
 interface IAddUsernameType {
   id: string;
   username: string;
+  name?: string;
 }
 import { db } from "../db";
 import { Prisma } from "@prisma/client";
 import { EDatabaseError } from "@repo/types";
 
-export const addUsername = async ({ id, username }: IAddUsernameType) => {
+export const addUsername = async ({ id, username, name }: IAddUsernameType) => {
   try {
     const user = await db.user.update({
       data: {
         username,
+        name,
       },
       where: {
         id,
