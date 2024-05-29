@@ -1,12 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   createCollection,
-  deleteCollection,
+  deleteCollection, getAllCollections,
   getCollectionById,
   getCollectionOwnerById,
   getUserByUsername,
 } from "@repo/db";
 import { createSlug } from "../../../lib/slug";
+
+// #get all collections of an user
+export const GET = async (req: NextRequest)=>{
+  try {
+    const userId = req.nextUrl.searchParams.get("userId");
+    if(!userId){
+      return NextResponse.json(
+        { error : {message : "userId is required"} },
+        {
+          status: 400,
+          statusText: "bad_Request",
+        },
+      );
+    }
+    const collections = await getAllCollections({userId});
+      return NextResponse.json({
+        collections
+      })
+
+  }catch(error){
+    return NextResponse.json(
+      { error },
+      {
+        status: 500,
+        statusText: "internal_server_error",
+      },
+    );
+  }
+}
 
 // #create a new collection
 export const POST = async (req: NextRequest) => {

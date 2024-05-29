@@ -73,3 +73,42 @@ export const getCollectionById = async ({ id }: { id: string }) => {
     };
   }
 };
+
+export const getAllCollections = async ({userId} : {userId: string}) => {
+  try{
+    const collections = await db.collections.findMany({
+      where : {
+        userId
+      },
+      include : {
+        trails : true,
+      }
+    })
+
+    if(!collections || collections.length===0){
+      return {
+        success: false,
+        data: null,
+        code: 404,
+        status: "not_found",
+        error: "Collections not found for given user"
+      };
+    }
+
+    return {
+      success: true,
+      data: collections,
+      code: 200,
+      status: "ok",
+      error: null
+    };
+  }catch(error){
+    return {
+      data: null,
+      error,
+      status: "internal_server_error",
+      code: 400,
+      success: false,
+    };
+  }
+}
