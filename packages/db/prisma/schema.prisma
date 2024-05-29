@@ -19,12 +19,11 @@ model User {
   email         String    @unique
   username      String?   @unique
   emailVerified DateTime?
-  image         String?
   account       Account?
   sessions      Session[]
 
-  githubId  Int     @unique
-  login     String  @unique
+  githubId  Int?     @unique
+  login     String?  @unique
   avatarUrl String? @map("avatar_url")
 
   createdAt DateTime @default(now()) @map("created_at")
