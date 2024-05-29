@@ -13,8 +13,13 @@ import {
 import { SpinnerOutline } from "@repo/ui/components/utils/spinner";
 import { useFormState, useFormStatus } from "react-dom";
 import { IOnboardFormPrevState, OnboardUserAction } from "../actions/onboard";
+import { Label } from "@repo/ui/components/ui/label";
 
-export const OnboardForm = () => {
+export const OnboardForm = ({
+  isLoggedInWithEmail,
+}: {
+  isLoggedInWithEmail: boolean;
+}) => {
   const initState = {
     message: "",
     error: null,
@@ -27,14 +32,23 @@ export const OnboardForm = () => {
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-8">
-          <OnboardFormFields state={state} />
+          <OnboardFormFields
+            state={state}
+            isLoggedInWithEmail={isLoggedInWithEmail}
+          />
         </form>
       </CardContent>
     </Card>
   );
 };
 
-function OnboardFormFields({ state }: { state: IOnboardFormPrevState }) {
+function OnboardFormFields({
+  state,
+  isLoggedInWithEmail,
+}: {
+  state: IOnboardFormPrevState;
+  isLoggedInWithEmail: boolean;
+}) {
   const { pending } = useFormStatus();
   return (
     <>
@@ -43,8 +57,15 @@ function OnboardFormFields({ state }: { state: IOnboardFormPrevState }) {
           Create a unique username, 5-20 characters, using letters, numbers, or
           underscores.
         </div>
+        {isLoggedInWithEmail && (
+          <fieldset disabled={pending} className="mb-3">
+            <Label>Name</Label>
+            <Input placeholder="Jhon Doe" name="name" required />
+          </fieldset>
+        )}
         <fieldset disabled={pending}>
-          <Input placeholder="JhonDoe" name="username" />
+          {isLoggedInWithEmail && <Label>Username</Label>}
+          <Input placeholder="JhonDoe123" name="username" />
           {state.errorType && state.errorType === "EValidationError" && (
             <div className="text-sm text-red-400 pt-2 px-1 -pb-2">
               <span>{state.error as string}</span>
@@ -67,7 +88,6 @@ function OnboardFormFields({ state }: { state: IOnboardFormPrevState }) {
           {pending ? (
             <div className="flex justify-center items-center gap-1">
               <SpinnerOutline />
-              <span>Submitting...</span>
             </div>
           ) : (
             <span>Submit</span>

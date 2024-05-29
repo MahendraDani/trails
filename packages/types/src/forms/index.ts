@@ -20,4 +20,5 @@ export const ZOnboardFormSchema = z.object({
       },
     ),
   id: z.string().min(0, { message: "User id is required" }),
+  name: z.string(),
 });
