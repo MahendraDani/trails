@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withApiClient } from "../../../lib/api";
-import { TUserWithSessionAndAccount } from "@repo/db/types";
+import { TApiClient } from "@repo/db/types";
 
 // get user
 export const GET = withApiClient(
-  async (
-    req: NextRequest,
-    client: TUserWithSessionAndAccount,
-  ): Promise<NextResponse> => {
+  async (req: NextRequest, client: TApiClient): Promise<NextResponse> => {
     // Your route logic here
     return NextResponse.json(
       {

@@ -21,6 +21,6 @@ const userInclude = Prisma.validator<Prisma.UserInclude>()({
   account: true,
 });
 
-export type TUserWithSessionAndAccount = Prisma.UserGetPayload<{
+export type TApiClient = Prisma.UserGetPayload<{
   include: typeof userInclude;
 }>;

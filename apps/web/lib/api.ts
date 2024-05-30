@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@repo/db";
-import { TUserWithSessionAndAccount } from "@repo/db/types";
+import { TApiClient } from "@repo/db/types";
 import { EApiError } from "@repo/types";
 
 /*
@@ -10,12 +10,7 @@ import { EApiError } from "@repo/types";
  * */
 
 export const withApiClient =
-  (
-    handler: (
-      req: NextRequest,
-      client: TUserWithSessionAndAccount,
-    ) => Promise<NextResponse>,
-  ) =>
+  (handler: (req: NextRequest, client: TApiClient) => Promise<NextResponse>) =>
   async (req: NextRequest) => {
     try {
       const authHeader = req.headers.get("Authorization");
@@ -63,29 +58,37 @@ export const withApiClient =
       }
     } catch (error) {
       if (error instanceof EApiError) {
-        return NextResponse.json(
-          {
-            error: {
-              message: error.message,
-              code: error.code,
-            },
-          },
-          { status: error.statusCode },
-        );
+        return handleApiError(error);
       } else {
-        return NextResponse.json(
-          {
-            error: {
-              message:
-                "The server encountered an unexpected condition which prevented it from fulfilling the request",
-              code: "internal_server_error",
-            },
-          },
-          {
-            status: 500,
-            statusText: "internal_server_error",
-          },
-        );
+        return hanldeInternalServerError(error);
       }
     }
   };
+
+export const handleApiError = (error: EApiError): NextResponse => {
+  return NextResponse.json(
+    {
+      error: {
+        message: error.message,
+        code: error.code,
+      },
+    },
+    { status: error.statusCode },
+  );
+};
+
+export const hanldeInternalServerError = (error: unknown): NextResponse => {
+  return NextResponse.json(
+    {
+      error: {
+        message:
+          "The server encountered an unexpected condition which prevented it from fulfilling the request",
+        code: "internal_server_error",
+      },
+    },
+    {
+      status: 500,
+      statusText: "internal_server_error",
+    },
+  );
+};
