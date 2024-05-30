@@ -1,6 +1,6 @@
 "use client";
-import { FormEvent } from "react";
-import { Button } from "../ui/button";
+import { FormEvent, useState } from "react";
+import { Button } from "@repo/ui/components/ui/button";
 import { signOut } from "@repo/auth/client";
 import {
   AlertDialog,
@@ -12,13 +12,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@ui/components/ui/alert-dialog";
+} from "@repo/ui/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 export const Logout = () => {
+  const router = useRouter();
   const handleSignout = async (e: FormEvent) => {
     e.preventDefault();
-    const data = await signOut({ redirect: false, callbackUrl: "/" });
-    data.url;
+    await signOut();
   };
   return (
     <AlertDialog>
@@ -35,10 +36,10 @@ export const Logout = () => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <form onSubmit={handleSignout}>
-            <Button variant={"destructive"} type="submit">
+          <form>
+            <AlertDialogAction type="submit" onClick={handleSignout}>
               Logout
-            </Button>
+            </AlertDialogAction>
           </form>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -79,13 +79,10 @@ model Collections {
   description String? @db.VarChar(255)
   slug        String  @unique @db.VarChar(255)
 
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-  trailCount Int      @default(0)
-  private    Boolean  @default(true)
-
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  owner     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
 
   trails Trails[]
 
@@ -119,7 +116,7 @@ model Trails {
   description  String?   @db.VarChar(255)
   content      String    @db.Text()
   language     Languages
-  private      Boolean   @default(true)
+  isPrivate    Boolean   @default(true) @map("is_private")
   likeCount    Int       @default(0) @map("like_count")
   commentCount Int       @default(0) @map("comment_count")
   createdAt    DateTime  @default(now()) @map("created_at")

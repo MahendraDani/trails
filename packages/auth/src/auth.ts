@@ -1,12 +1,13 @@
-import { NextAuthOptions } from "next-auth";
+import { Awaitable, DefaultSession, NextAuthOptions, Session } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { db } from "@repo/db";
+import { db, getUserByEmail } from "@repo/db";
 import EmailProvider from "next-auth/providers/email";
+import { TUserDB, TSessionDB, TAccountDB } from "@repo/db/types";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(db),
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET,
   providers: [
     GithubProvider({
       clientId: process.env.AUTH_GITHUB_ID!,
@@ -179,6 +180,35 @@ export const authOptions: NextAuthOptions = {
         }
       }
       return false;
+    },
+    async session({ session, user, token }) {
+      const dbUser = await db.user.findUnique({
+        where: {
+          email: user.email,
+        },
+        include: {
+          account: true,
+          sessions: true,
+        },
+      });
+
+      if (!dbUser) {
+        throw new Error("I don't know what the error is");
+      }
+      session.account = dbUser?.account!;
+      session.sess = dbUser?.sessions;
+      session.user = {
+        id: dbUser.id,
+        avatarUrl: dbUser.avatarUrl,
+        email: dbUser.email,
+        name: dbUser.name,
+        username: dbUser.username,
+        createdAt: dbUser.createdAt,
+        emailVerified: dbUser.emailVerified,
+        profileId: dbUser.profileId,
+        updatedAt: dbUser.updatedAt,
+      };
+      return session;
     },
   },
 };

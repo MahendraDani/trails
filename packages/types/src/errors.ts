@@ -1,35 +1,4 @@
-export class EResourceNotFoundError extends Error {
-  statusCode = 404;
-  constructor(resource: string, id: string) {
-    super(`${resource} with ID ${id} not found`);
-    this.name = "EResourceNotFoundError";
-  }
-}
-
-export class EInvalidInputError extends Error {
-  statusCode = 400;
-  constructor(message: string) {
-    super(message);
-    this.name = "EInvalidInputError";
-  }
-}
-
-export class EValidationError extends Error {
-  statusCode = 400;
-  constructor(message: string) {
-    super(message);
-    this.name = "EValidationError";
-  }
-}
-
-export class EUnknownError extends Error {
-  statusCode = 500;
-  constructor(message: string) {
-    super(message);
-    this.name = "EUnknownError";
-  }
-}
-
+import { z, ZodIssue } from "zod";
 export class EDatabaseError extends Error {
   statusCode = 500;
   constructor(message: string) {
@@ -38,18 +7,43 @@ export class EDatabaseError extends Error {
   }
 }
 
-export class EAuthenticationError extends Error {
-  statusCode = 401;
-  constructor(message: string) {
+export class EApiError extends Error {
+  readonly code;
+  readonly statusCode;
+  constructor({
+    message,
+    code,
+    statusCode,
+  }: {
+    message: string;
+    code: string;
+    statusCode: number;
+  }) {
     super(message);
-    this.name = "AuthenticationError";
+    this.code = code;
+    this.statusCode = statusCode;
   }
 }
 
-export class EAuthorizationError extends Error {
-  statusCode = 403;
-  constructor(message: string) {
+export class EValidationError extends Error {
+  readonly code;
+  readonly statusCode;
+  readonly validationErrors;
+
+  constructor({
+    message,
+    code,
+    statusCode,
+    validationErrors,
+  }: {
+    message: string;
+    code: string;
+    statusCode: number;
+    validationErrors: ZodIssue[];
+  }) {
     super(message);
-    this.name = "EAuthorizationError";
+    this.code = code;
+    this.statusCode = statusCode;
+    this.validationErrors = validationErrors;
   }
 }
