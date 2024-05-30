@@ -12,7 +12,7 @@ export default async function Dashboard({ params }: IDashboardPageProps) {
   if (!session?.user) {
     redirect("/");
   }
-  const userId = session.user.image as string;
+  const userId = session.user.id;
   const res = await fetch(
     `http://localhost:3000/api/collections/?userId=${userId}`,
     { method: "GET" },

@@ -1,7 +1,7 @@
-import { Awaitable, NextAuthOptions, Session } from "next-auth";
+import { Awaitable, DefaultSession, NextAuthOptions, Session } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { db } from "@repo/db";
+import { db, getUserByEmail } from "@repo/db";
 import EmailProvider from "next-auth/providers/email";
 import { TUserDB, TSessionDB, TAccountDB } from "@repo/db/types";
 
@@ -182,12 +182,33 @@ export const authOptions: NextAuthOptions = {
       return false;
     },
     async session({ session, user, token }) {
-      // NOTE : This is just a workaround to store userId directly in session, but to avoid TYPE errors, we are storing the userId in image field of session.user object
-      if (session.user) {
-        session.user.image = user.id;
+      const dbUser = await db.user.findUnique({
+        where: {
+          email: user.email,
+        },
+        include: {
+          account: true,
+          sessions: true,
+        },
+      });
+
+      if (!dbUser) {
+        throw new Error("I don't know what the error is");
       }
+      session.account = dbUser?.account!;
+      session.sess = dbUser?.sessions;
+      session.user = {
+        id: dbUser.id,
+        avatarUrl: dbUser.avatarUrl,
+        email: dbUser.email,
+        name: dbUser.name,
+        username: dbUser.username,
+        createdAt: dbUser.createdAt,
+        emailVerified: dbUser.emailVerified,
+        profileId: dbUser.profileId,
+        updatedAt: dbUser.updatedAt,
+      };
       return session;
     },
   },
 };
-
