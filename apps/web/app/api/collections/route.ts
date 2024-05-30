@@ -14,26 +14,24 @@ import {
 } from "../../../lib/api";
 import { TApiClient } from "@repo/db/types";
 import { createSlug } from "../../../lib/slug";
-import {
-  EApiError,
-  EValidationError,
-  ZCreateCollectionSchema,
-} from "@repo/types";
+import { EApiError, ZCreateCollectionSchema } from "@repo/types";
 import { ZodError } from "zod";
 
 // #get all collections of an user
 export const GET = withApiClient(
   async (req: NextRequest, client: TApiClient) => {
     try {
-      const userId = client.id;
-      const collections = await getAllCollections({ userId });
+      const collections = await getAllCollections({ userId: client.id });
       return NextResponse.json(
         {
-          collections: collections.data,
+          data: collections.data,
         },
-        { status: collections.code, statusText: collections.status },
+        { status: 200, statusText: "ok" },
       );
     } catch (error) {
+      if (error instanceof EApiError) {
+        return handleApiError(error);
+      }
       return hanldeInternalServerError(error);
     }
   },
@@ -92,14 +90,7 @@ export const DELETE = withApiClient(
       }
 
       //  check if collection exists first
-      const exists = await getCollectionById({ id });
-      if (!exists.data) {
-        throw new EApiError({
-          message: "Collection with provided id not found",
-          statusCode: exists.code,
-          code: exists.status,
-        });
-      }
+      await getCollectionById({ id });
 
       // get owner of collection
       const collection = await getCollectionOwnerById({ id });
@@ -121,11 +112,11 @@ export const DELETE = withApiClient(
       return NextResponse.json(
         {
           message: "Collection deleted successfully",
-          data: deletedCollection.data,
+          id: deletedCollection.data.id,
         },
         {
-          status: deletedCollection.code,
-          statusText: deletedCollection.status,
+          status: 200,
+          statusText: "ok",
         },
       );
     } catch (error) {

@@ -1,6 +1,7 @@
 import { TCollectionsDB } from "@db/types";
 import { db } from "..";
 import { z } from "zod";
+import { EApiError } from "@repo/types";
 
 const ZIsExistingCollectionByNameSchema = z.object({
   name: z
@@ -48,67 +49,47 @@ export const getCollectionByName = async ({
 };
 
 export const getCollectionById = async ({ id }: { id: string }) => {
-  try {
-    const collection = await db.collections.findUnique({
-      where: { id },
-      include: {
-        owner: true,
-        trails: true,
-      },
+  const collection = await db.collections.findUnique({
+    where: { id },
+    include: {
+      owner: true,
+      trails: true,
+    },
+  });
+
+  if (!collection) {
+    throw new EApiError({
+      message: "Collection not found",
+      code: "not_found",
+      statusCode: 404,
     });
-    return {
-      success: !collection ? false : true,
-      data: collection,
-      code: !collection ? 404 : 200,
-      status: !collection ? "not_found " : "ok",
-      error: !collection ? "Collection not found" : null,
-    };
-  } catch (error) {
-    return {
-      data: null,
-      error,
-      status: "internal_server_error",
-      code: 400,
-      success: false,
-    };
   }
+  return {
+    data: collection,
+  };
 };
 
-export const getAllCollections = async ({userId} : {userId: string}) => {
-  try{
-    const collections = await db.collections.findMany({
-      where : {
-        userId
-      },
-      include : {
-        trails : true,
-      }
-    })
+export const getAllCollections = async ({ userId }: { userId: string }) => {
+  const collections = await db.collections.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      trails: true,
+    },
+  });
 
-    if(!collections || collections.length===0){
-      return {
-        success: false,
-        data: null,
-        code: 404,
-        status: "not_found",
-        error: "Collections not found for given user"
-      };
-    }
-
-    return {
-      success: true,
-      data: collections,
-      code: 200,
-      status: "ok",
-      error: null
-    };
-  }catch(error){
-    return {
-      data: null,
-      error,
-      status: "internal_server_error",
-      code: 400,
-      success: false,
-    };
+  if (!collections || collections.length === 0) {
+    // throw error here
+    throw new EApiError({
+      message: "Collections not found for given user",
+      code: "not_found",
+      statusCode: 404,
+    });
   }
-}
+
+  // return only data
+  return {
+    data: collections,
+  };
+};
