@@ -1,3 +1,3 @@
 export * from "./errors";
 export * from "./forms";
-export * from "./collections";
+export * from "./schema";

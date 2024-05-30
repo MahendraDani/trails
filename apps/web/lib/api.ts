@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@repo/db";
 import { TApiClient } from "@repo/db/types";
 import { EApiError } from "@repo/types";
-
+import { ZodError } from "zod";
 /*
  * 1. Get token from headers["Authorization"] => 8b883c35-688b-4aed-8980-549a50ae3e30
  * 2. Check if it exists in Session table in database and get the corresponding User details from userId field
@@ -68,10 +68,9 @@ export const withApiClient =
 export const handleApiError = (error: EApiError): NextResponse => {
   return NextResponse.json(
     {
-      error: {
-        message: error.message,
-        code: error.code,
-      },
+      statusCode: error.statusCode,
+      code: error.code,
+      message: error.message,
     },
     { status: error.statusCode },
   );
@@ -80,15 +79,29 @@ export const handleApiError = (error: EApiError): NextResponse => {
 export const hanldeInternalServerError = (error: unknown): NextResponse => {
   return NextResponse.json(
     {
-      error: {
-        message:
-          "The server encountered an unexpected condition which prevented it from fulfilling the request",
-        code: "internal_server_error",
-      },
+      statusCode: 500,
+      code: "internal_server_error",
+      message:
+        "The server encountered an unexpected condition which prevented it from fulfilling the request",
     },
     {
       status: 500,
       statusText: "internal_server_error",
+    },
+  );
+};
+
+export const hanldeZodError = (error: ZodError): NextResponse => {
+  return NextResponse.json(
+    {
+      statusCode: 400,
+      code: "bad_request",
+      message: "Invalid or incorrect request body",
+      error: error.issues,
+    },
+    {
+      status: 400,
+      statusText: "bad_request",
     },
   );
 };

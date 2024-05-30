@@ -9,11 +9,17 @@ import {
 import {
   handleApiError,
   hanldeInternalServerError,
+  hanldeZodError,
   withApiClient,
 } from "../../../lib/api";
 import { TApiClient } from "@repo/db/types";
 import { createSlug } from "../../../lib/slug";
-import { EApiError } from "@repo/types";
+import {
+  EApiError,
+  EValidationError,
+  ZCreateCollectionSchema,
+} from "@repo/types";
+import { ZodError } from "zod";
 
 // #get all collections of an user
 export const GET = withApiClient(
@@ -33,26 +39,36 @@ export const GET = withApiClient(
   },
 );
 
-// // #create a new collection
+// #create a new collection
 export const POST = withApiClient(
   async (req: NextRequest, client: TApiClient) => {
     try {
       const { name, description } = await req.json();
 
-      const { data, status, success, code, error } = await createCollection({
+      const parsed = ZCreateCollectionSchema.parse({
         name,
         description,
+      });
+
+      const { data } = await createCollection({
+        name: parsed.name,
+        description: parsed.description,
         userId: client.id,
         slug: `${client.username}:${createSlug(name.toLowerCase())}`,
       });
-
       return NextResponse.json(
-        { data, success, error },
-        { status: code, statusText: status },
+        {
+          data,
+        },
+        { status: 201, statusText: "ok" },
       );
     } catch (error) {
       if (error instanceof EApiError) {
         return handleApiError(error);
+      }
+
+      if (error instanceof ZodError) {
+        return hanldeZodError(error);
       }
       return hanldeInternalServerError(error);
     }

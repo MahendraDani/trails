@@ -6,6 +6,6 @@ declare module "next-auth" {
   interface Session {
     user: TUserDB;
     account?: TAccountDB;
-    sess?: TSessionDB[];
+    sess: TSessionDB[];
   }
 }
