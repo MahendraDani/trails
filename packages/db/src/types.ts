@@ -24,3 +24,11 @@ const userInclude = Prisma.validator<Prisma.UserInclude>()({
 export type TApiClient = Prisma.UserGetPayload<{
   include: typeof userInclude;
 }>;
+
+const trailsInclude = Prisma.validator<Prisma.CollectionsInclude>()({
+  trails: true,
+});
+
+export type TCollectionsWithTrails = Prisma.CollectionsGetPayload<{
+  include: typeof trailsInclude;
+}>;
