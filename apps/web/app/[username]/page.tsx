@@ -18,25 +18,35 @@ export default async function Dashboard({ params }: IDashboardPageProps) {
       Authorization: `Bearer ${token}`,
     },
   });
+  let collectionsExist: boolean = false;
   if (!res.ok) {
-    throw new Error("Bad collections fetch request");
+    collectionsExist = false;
+  } else {
+    collectionsExist = true;
   }
   const collections = await res.json();
 
   return (
     <main className="p-3 max-w-[75%] mx-auto">
       <div className="flex justify-center items-center gap-12 flex-wrap">
-        {collections.data.map((c: TCollectionsWithTrails, i: number) => (
-          <div className="w-[350px] bg-green-50 p-2" key={c.id}>
-            <Link href={`/${params.username}/${c.slug.split(":")[1]}`} key={i}>
-              <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-                {c.name}
-              </h3>
-            </Link>
-            <p className="leading-7 my-1">{c.description}</p>
-            <DeleteCollectionForm id={c.id} />
-          </div>
-        ))}
+        {collectionsExist ? (
+          collections.data.map((c: TCollectionsWithTrails, i: number) => (
+            <div className="w-[350px] bg-green-50 p-2" key={c.id}>
+              <Link
+                href={`/${params.username}/${c.slug.split(":")[1]}`}
+                key={i}
+              >
+                <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+                  {c.name}
+                </h3>
+              </Link>
+              <p className="leading-7 my-1">{c.description}</p>
+              <DeleteCollectionForm id={c.id} />
+            </div>
+          ))
+        ) : (
+          <h1>No collections found. Please create a collection first</h1>
+        )}
       </div>
     </main>
   );
