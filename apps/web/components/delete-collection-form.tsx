@@ -2,7 +2,8 @@
 
 import { Button } from "@repo/ui/components/ui/button";
 import { useFormState, useFormStatus } from "react-dom";
-import deleteCollectionAction, {
+import {
+  deleteCollectionAction,
   IDeleteCollectionPrevState,
 } from "../actions/collections";
 import { SpinnerOutline } from "@repo/ui/components/utils/spinner";
@@ -24,8 +25,6 @@ export const DeleteCollectionForm = ({ id }: { id: string }) => {
   useEffect(() => {
     if (formstate.statusCode === 200) {
       router.refresh();
-    } else {
-      toast.error("OOps, error deleting the collection");
     }
   }, [formstate.statusCode]);
   return (
