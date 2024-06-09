@@ -13,7 +13,6 @@
     "**/*.js",
     "**/*.ts",
     "**/*.tsx",
-    "**/**/.tsx",
     ".next/types/**/*.ts",
     "types/next-auth.d.ts",
   ],

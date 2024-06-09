@@ -1,24 +1,34 @@
 "use client";
 
-import Link from "next/link";
-import { useFormState, useFormStatus } from "react-dom";
-import { redirect, usePathname } from "next/navigation";
 import { Button } from "@repo/ui/components/ui/button";
+import { Textarea } from "@repo/ui/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@repo/ui/components/ui/dialog";
+import { Input } from "@repo/ui/components/ui/input";
+import { Label } from "@repo/ui/components/ui/label";
 import {
   createCollectionAction,
   ICreateCollectionPrevState,
 } from "../actions/collections";
-import { useEffect } from "react";
+import { useFormState, useFormStatus } from "react-dom";
 import { SpinnerOutline } from "@repo/ui/components/utils/spinner";
+import { useEffect } from "react";
+import { redirect, usePathname } from "next/navigation";
 
-export const CreateCollectionForm = () => {
+const initState: ICreateCollectionPrevState = {
+  message: "",
+  code: "",
+  statusCode: 0,
+};
+
+export function CreateCollectionModal() {
   const pathname = usePathname();
-
-  const initState: ICreateCollectionPrevState = {
-    message: "",
-    code: "",
-    statusCode: 0,
-  };
 
   const [formstate, formAction] = useFormState(
     createCollectionAction,
@@ -26,67 +36,59 @@ export const CreateCollectionForm = () => {
   );
 
   useEffect(() => {
+    console.log(formstate.statusCode);
     if (formstate.statusCode === 200) {
       redirect(`./${pathname}`);
     }
   }, [formstate.statusCode]);
 
   return (
-    <div className="bg-white p-4 rounded shadow-md">
-      <form action={formAction}>
-        <h2 className="text-xl font-semibold mb-4">Create Collection</h2>
-        <div className="mb-4">
-          <label htmlFor="name" className="block mb-2 text-sm font-medium">
-            Name
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            className="block w-full px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            required
-          />
-        </div>
-        <div className="mb-6">
-          <label
-            htmlFor="description"
-            className="block mb-2 text-sm font-medium"
-          >
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            className="block w-full h-20 px-3 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-            required
-          ></textarea>
-        </div>
-        <div className="flex justify-end">
-          <CreateCollectionButton />
-          <Link href={pathname}>
-            <button
-              type="submit"
-              className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md ml-2"
-            >
-              Cancel
-            </button>
-          </Link>
-        </div>
-      </form>
-    </div>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button className="mb-12" variant="outline">
+          +
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>New Collection</DialogTitle>
+          <DialogDescription>
+            Add details for your new collection. Click save when you're done.
+          </DialogDescription>
+        </DialogHeader>
+        <form action={formAction}>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                name="name"
+                placeholder="Collection name..."
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="description" className="text-right">
+                Description
+              </Label>
+              <Textarea
+                name="description"
+                placeholder="Collection description..."
+                className="col-span-3"
+              />
+            </div>
+            <CreateCollectionButton />
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
-};
+}
 
 function CreateCollectionButton() {
   const { pending } = useFormStatus();
   return (
-    <Button
-      type="submit"
-      className="bg-black hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-md"
-    >
-      {pending ? <SpinnerOutline /> : "Create"}
-    </Button>
+    <Button type="submit">{pending ? <SpinnerOutline /> : "Create"}</Button>
   );
 }
-
-export default CreateCollectionForm;

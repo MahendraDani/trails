@@ -6,15 +6,15 @@ import { EApiError } from "@repo/types";
 export const getTrailsByCollectionSlug = async ({
   userId,
   userName,
-  collectionName,
+  collectionSlug,
 }: {
   userId: string;
   userName: string;
-  collectionName: string;
+  collectionSlug: string;
 }) => {
   const collectionMaybe = await db.collections.findFirst({
     where: {
-      slug: `${userName}:${collectionName}`,
+      slug: collectionSlug,
     },
   });
 

@@ -3,8 +3,7 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { DeleteCollectionForm } from "../../components/delete-collection-form";
 import { unstable_noStore as noStore } from "next/cache";
-import CreateCollectionForm from "../../components/create-collection-form";
-import Modal from "../../components/modal";
+import { CreateCollectionModal } from "../../components/create-collection-form";
 
 interface IDashboardPageProps {
   params: {
@@ -31,14 +30,7 @@ export default async function Dashboard({ params }: IDashboardPageProps) {
 
   return (
     <main className="p-3 max-w-[75%] mx-auto flex flex-col items-center pb-16">
-      <Link href="?modal=true">
-        <button
-          type="button"
-          className="px-4 py-2 mb-12 text-2xl rounded-3xl bg-black text-white"
-        >
-          +
-        </button>
-      </Link>
+      <CreateCollectionModal />
       <div className="flex justify-center items-center gap-12 flex-wrap">
         {collectionsExist ? (
           collections.data.map((c: TCollectionsWithTrails, i: number) => (
@@ -59,10 +51,6 @@ export default async function Dashboard({ params }: IDashboardPageProps) {
           <h1>No collections found. Please create a collection first</h1>
         )}
       </div>
-
-      <Modal>
-        <CreateCollectionForm />
-      </Modal>
     </main>
   );
 }
