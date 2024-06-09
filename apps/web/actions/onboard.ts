@@ -14,16 +14,19 @@ export async function OnboardUserAction(
   prevState: IOnboardFormPrevState,
   formData: FormData,
 ) {
+  console.log("github logging in...");
   // get id from db call here (So that it doesn't appear in payload)
   const session = await getServerSession(authOptions);
+  console.log(session);
   const user = await getUserByEmail({ email: session?.user?.email! });
+  console.log(user);
   const username = formData.get("username");
-  const name = formData.get("name");
+  let name = formData.get("name");
 
   const parsedInput = ZOnboardFormSchema.safeParse({
     username,
     id: user?.id,
-    name,
+    name: name ?? user?.name,
   });
 
   if (!parsedInput.success) {
@@ -50,6 +53,8 @@ export async function OnboardUserAction(
     username: parsedInput.data.username,
     name: parsedInput.data.name,
   });
+
+  console.log(updateduser.username);
 
   redirect(`/${updateduser.username}`);
   return {

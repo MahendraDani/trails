@@ -9,6 +9,12 @@ import { ZodError } from "zod";
  * 3. If the details don't exist request else return Unauthorized
  * */
 
+export interface ICollectionPageProps {
+  params: {
+    collectionName: string;
+  };
+}
+
 export const withApiClient =
   (handler: (req: NextRequest, client: TApiClient) => Promise<NextResponse>) =>
   async (req: NextRequest) => {
@@ -48,6 +54,68 @@ export const withApiClient =
           });
         }
         return handler(req, client);
+      } else {
+        throw new EApiError({
+          message:
+            "The request was invalid or cannot be surved. Authorization token is required to process the request",
+          code: "bad_request",
+          statusCode: 400,
+        });
+      }
+    } catch (error) {
+      if (error instanceof EApiError) {
+        return handleApiError(error);
+      } else {
+        return hanldeInternalServerError(error);
+      }
+    }
+  };
+
+export const withApiCollectionIdClient =
+  (
+    handler: (
+      req: NextRequest,
+      client: TApiClient,
+      collectionId: string,
+    ) => Promise<NextResponse>,
+  ) =>
+  async (req: NextRequest, { params }: ICollectionPageProps) => {
+    try {
+      const authHeader = req.headers.get("Authorization");
+
+      if (authHeader) {
+        if (!authHeader.includes("Bearer ")) {
+          throw new EApiError({
+            message:
+              "Misconfigured authorization header. Did you forget to add 'Bearer '?",
+            code: "bad_request",
+            statusCode: 400,
+          });
+        }
+        const token = authHeader.split(" ")[1];
+        const client = await db.user.findFirst({
+          where: {
+            sessions: {
+              some: {
+                sessionToken: token,
+              },
+            },
+          },
+          include: {
+            account: true,
+            sessions: true,
+          },
+        });
+
+        if (!client) {
+          throw new EApiError({
+            message:
+              "The request requires user authentication. Invalid or incorrect access token",
+            code: "unauthorized",
+            statusCode: 401,
+          });
+        }
+        return handler(req, client, params.collectionName);
       } else {
         throw new EApiError({
           message:

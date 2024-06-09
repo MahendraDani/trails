@@ -22,6 +22,7 @@ export const GET = withApiClient(
   async (req: NextRequest, client: TApiClient) => {
     try {
       const collections = await getAllCollections({ userId: client.id });
+
       return NextResponse.json(
         {
           data: collections.data,
@@ -41,18 +42,18 @@ export const GET = withApiClient(
 export const POST = withApiClient(
   async (req: NextRequest, client: TApiClient) => {
     try {
-      const { name, description } = await req.json();
+      const { collectionName, collectionDescription } = await req.json();
 
       const parsed = ZCreateCollectionSchema.parse({
-        name,
-        description,
+        collectionName,
+        collectionDescription,
       });
 
       const { data } = await createCollection({
-        name: parsed.name,
-        description: parsed.description,
+        name: parsed.collectionName,
+        description: parsed.collectionDescription,
         userId: client.id,
-        slug: `${client.username}:${createSlug(name.toLowerCase())}`,
+        slug: `${client.username}:${createSlug(collectionName.toLowerCase())}`,
       });
       return NextResponse.json(
         {

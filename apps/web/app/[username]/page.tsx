@@ -3,12 +3,14 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { DeleteCollectionForm } from "../../components/delete-collection-form";
 import { unstable_noStore as noStore } from "next/cache";
+import { CreateCollectionModal } from "../../components/create-collection-form";
 
 interface IDashboardPageProps {
   params: {
     username: string;
   };
 }
+
 export default async function Dashboard({ params }: IDashboardPageProps) {
   noStore();
   const token = cookies().get("next-auth.session-token")?.value;
@@ -27,7 +29,8 @@ export default async function Dashboard({ params }: IDashboardPageProps) {
   const collections = await res.json();
 
   return (
-    <main className="p-3 max-w-[75%] mx-auto">
+    <main className="p-3 max-w-[75%] mx-auto flex flex-col items-center pb-16">
+      <CreateCollectionModal />
       <div className="flex justify-center items-center gap-12 flex-wrap">
         {collectionsExist ? (
           collections.data.map((c: TCollectionsWithTrails, i: number) => (

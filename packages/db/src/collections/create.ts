@@ -10,6 +10,7 @@ export const createCollection = async ({
 }: Pick<TCollectionsDB, "name" | "description" | "userId" | "slug">) => {
   const exists = await db.collections.findFirst({
     where: {
+      userId,
       slug,
     },
   });
